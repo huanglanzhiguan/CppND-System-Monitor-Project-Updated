@@ -1,8 +1,8 @@
 #include "linux_parser.h"
 
+#include <cassert>
 #include <dirent.h>
 #include <unistd.h>
-
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -11,7 +11,7 @@ using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
-using fs = std::filesystem;
+namespace fs = std::filesystem;
 
 // An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
