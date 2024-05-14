@@ -13,38 +13,25 @@
 
 class System {
  public:
-  explicit System(float updateInterval = 1.0f);
-  ~System();
+  System();
+  ~System() = default;
 
   Processor& Cpu();
   std::vector<Process>& Processes();
-  [[nodiscard]] float MemoryUtilization() const;
-  [[nodiscard]] long UpTime() const;
-  [[nodiscard]] int TotalProcesses() const;
-  [[nodiscard]] int RunningProcesses() const;
+  [[nodiscard]] static float MemoryUtilization();
+  [[nodiscard]] static long UpTime();
+  [[nodiscard]] static int TotalProcesses();
+  [[nodiscard]] static int RunningProcesses();
   [[nodiscard]] std::string Kernel() const;
   [[nodiscard]] std::string OperatingSystem() const;
 
  private:
-  void FetchData();
-  bool needsUpdate();
-
-  bool isRunning_;
   std::mutex dataMutex_;
-
-  using TimePointTy = std::chrono::time_point<std::chrono::system_clock>;
-  float updateInterval_;
-  std::thread updateThread_;
-  TimePointTy previousTime_;
 
   Processor cpu_ = {};
   std::vector<Process> processes_ = {};
-  std::atomic<float> memoryUtilization_;
-  std::atomic<long> uptime_;
-  std::atomic<int> totalProcesses_;
-  std::atomic<int> runningProcesses_;
-  std::string kernel_;
-  std::string operatingSystem_;
+  const std::string kernel_;
+  const std::string operatingSystem_;
 };
 
 #endif
