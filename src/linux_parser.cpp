@@ -187,9 +187,9 @@ string LinuxParser::Ram(int pid) {
       if (line.find("VmSize") != std::string::npos) {
         std::istringstream linestream(line);
         std::string keyword;
-        int ram;
+        float ram;
         linestream >> keyword >> ram;
-        return std::to_string(ram / 1024) + " MB";
+        return std::to_string(ram / 1024);
       }
     }
   }
@@ -282,7 +282,7 @@ float LinuxParser::CpuUtilization(int pid) {
     float seconds = uptime - (starttime / Hertz);
 
     // Calculate CPU utilization
-    float cpu_utilization = (total_time / Hertz) / seconds;
+    float cpu_utilization = 100 * (total_time / Hertz) / seconds;
 
     return cpu_utilization;
   }
