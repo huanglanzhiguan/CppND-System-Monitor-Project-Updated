@@ -5,7 +5,12 @@
 
 class Processor {
  public:
-  static float Utilization();
+  Processor();
+  float Utilization();
+
+ private:
+  uint64_t prev_user, prev_nice, prev_system, prev_idle, prev_iowait, prev_irq,
+      prev_softirq, prev_steal;
 };
 
 #endif

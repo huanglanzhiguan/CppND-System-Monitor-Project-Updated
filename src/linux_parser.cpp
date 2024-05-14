@@ -98,58 +98,31 @@ long LinuxParser::UpTime() {
 
   std::string line;
   if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
+    while (std::getline(filestream, line, ".")) {
       std::istringstream linestream(line);
-      float uptime;
+      long uptime;
       linestream >> uptime;
-      return static_cast<long>(uptime);
+      return uptime;
     }
   }
   return 0;
 }
 
 // Read and return CPU utilization
-unsigned long long prevUser = 0, prevNice = 0, prevSystem = 0, prevIdle = 0,
-                   prevIoWait = 0, prevIrq = 0, prevSoftIrq = 0, prevSteal = 0;
-
-vector<string> LinuxParser::CpuUtilization() {
+vector<uint64_t> LinuxParser::CpuUtilization() {
   std::ifstream filestream(kProcDirectory + kStatFilename);
   std::string line;
   std::getline(filestream, line);
   std::istringstream linestream(line);
-  uint64_t user, nice, system, idle, iowait, irq, softirq, steal;
-  linestream >> user >> nice >> system >> idle >> iowait >> irq >> softirq >>
-      steal;
-  // Calculate CPU's utilization
+  std::string cpu;
+  uint64_t curr_user, curr_nice, curr_system, curr_idle, curr_iowait, curr_irq,
+      curr_softirq, curr_steal;
 
-  uint64_t PrevIdle = prevIdle + prevIoWait;
-  uint64_t Idle = idle + iowait;
+  linestream >> cpu >> curr_user >> curr_nice >> curr_system >> curr_idle >>
+      curr_iowait >> curr_irq >> curr_softirq >> curr_steal;
 
-  uint64_t PrevNonIdle =
-      prevUser + prevNice + prevSystem + prevIrq + prevSoftIrq + prevSteal;
-  uint64_t NonIdle = user + nice + system + irq + softirq + steal;
-
-  uint64_t PrevTotal = PrevIdle + PrevNonIdle;
-  uint64_t Total = Idle + NonIdle;
-
-  // Calculate differences
-  uint64_t totald = Total - PrevTotal;
-  uint64_t idled = Idle - PrevIdle;
-
-  // Calculate CPU usage percentage
-  auto CPU_Percentage = static_cast<float>(totald - idled) / totald * 100.0;
-
-  // Update previous values for next calculation
-  prevUser = user;
-  prevNice = nice;
-  prevSystem = system;
-  prevIdle = idle;
-  prevIoWait = iowait;
-  prevIrq = irq;
-  prevSoftIrq = softirq;
-  prevSteal = steal;
-
-  return {std::to_string(CPU_Percentage)};
+  return {curr_user, curr_nice, curr_system, curr_idle, curr_iowait, curr_irq,
+          curr_softirq, curr_steal};
 }
 
 // Read and return the total number of processes
@@ -198,7 +171,7 @@ string LinuxParser::Command(int pid) {
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
   std::ifstream filestream(kProcDirectory + std::to_string(pid) +
-                           kStatFilename);
+                           kStatusFilename);
   std::string line;
   while (std::getline(filestream, line)) {
     if (line.find("VmSize") != std::string::npos) {
@@ -238,7 +211,7 @@ string LinuxParser::User(int pid) {
     std::string username, x, uid;
     std::replace(line.begin(), line.end(), ':', ' ');
     linestream >> username >> x >> uid;
-    if (uid == Uid(pid)) {
+    if (uid == id) {
       return username;
     }
   }
@@ -280,9 +253,17 @@ float LinuxParser::CpuUtilization(int pid) {
     linestream >> value;
   }
   linestream >> starttime;
-  auto total_time = utime + stime;
-  total_time = total_time + cutime + cstime;
-  auto seconds = uptime - (starttime / sysconf(_SC_CLK_TCK));
-  auto cpu_usage = 100 * ((total_time / sysconf(_SC_CLK_TCK)) / seconds);
-  return cpu_usage;
+
+  auto Hertz = static_cast<float>(sysconf(_SC_CLK_TCK));
+
+  // Calculate the total time spent by the process
+  float total_time = utime + stime + cutime + cstime;
+
+  // Calculate the seconds the process has been alive
+  float seconds = uptime - (starttime / Hertz);
+
+  // Calculate CPU utilization
+  float cpu_utilization = (total_time / Hertz) / seconds;
+
+  return cpu_utilization;
 }
