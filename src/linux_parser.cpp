@@ -70,7 +70,7 @@ vector<int> LinuxParser::Pids() {
 
 // Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
-  std::ifstream filestream(kMeminfoFilename);
+  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
 
   std::string line;
   std::string keyword, value, kb;
@@ -94,7 +94,7 @@ float LinuxParser::MemoryUtilization() {
 
 // Read and return the system uptime
 long LinuxParser::UpTime() {
-  std::ifstream filestream(kUptimeFilename);
+  std::ifstream filestream(kProcDirectory + kUptimeFilename);
 
   std::string line;
   if (filestream.is_open()) {
@@ -108,19 +108,6 @@ long LinuxParser::UpTime() {
   return 0;
 }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid [[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
-
 // Read and return CPU utilization
 unsigned long long prevUser = 0, prevNice = 0, prevSystem = 0, prevIdle = 0,
                    prevIoWait = 0, prevIrq = 0, prevSoftIrq = 0, prevSteal = 0;
@@ -130,8 +117,7 @@ vector<string> LinuxParser::CpuUtilization() {
   std::string line;
   std::getline(filestream, line);
   std::istringstream linestream(line);
-  uint64_t user, nice, system, idle, iowait, irq, softirq, steal, guest,
-      guest_nice;
+  uint64_t user, nice, system, idle, iowait, irq, softirq, steal;
   linestream >> user >> nice >> system >> idle >> iowait >> irq >> softirq >>
       steal;
   // Calculate CPU's utilization
@@ -298,4 +284,5 @@ float LinuxParser::CpuUtilization(int pid) {
   total_time = total_time + cutime + cstime;
   auto seconds = uptime - (starttime / sysconf(_SC_CLK_TCK));
   auto cpu_usage = 100 * ((total_time / sysconf(_SC_CLK_TCK)) / seconds);
+  return cpu_usage;
 }
