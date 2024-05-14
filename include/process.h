@@ -18,6 +18,8 @@ class Process {
   [[nodiscard]] long int UpTime() const;
   bool operator<(Process const& a) const;
 
+  float cpuUtilization_;
+
  private:
   int pid_;
 };

@@ -187,13 +187,13 @@ string LinuxParser::Ram(int pid) {
       if (line.find("VmSize") != std::string::npos) {
         std::istringstream linestream(line);
         std::string keyword;
-        float ram;
+        long ram;
         linestream >> keyword >> ram;
         return std::to_string(ram / 1024);
       }
     }
   }
-  return "";
+  return "0";
 }
 
 // Read and return the user ID associated with a process
@@ -254,17 +254,18 @@ long LinuxParser::UpTime(int pid) {
 
 // Read and return the CPU utilization of a process
 float LinuxParser::CpuUtilization(int pid) {
+  auto uptime = static_cast<float>(UpTime());
   std::ifstream filestream(kProcDirectory + std::to_string(pid) +
                            kStatFilename);
   std::string line;
+  float utime, stime, cutime, cstime, starttime;
+
   if (filestream.is_open()) {
     std::getline(filestream, line);
     std::istringstream linestream(line);
     std::string value;
-    float uptime, utime, stime, cutime, cstime, starttime;
 
-    linestream >> uptime;
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 13; i++) {
       linestream >> value;
     }
     linestream >> utime >> stime >> cutime >> cstime;
@@ -282,7 +283,7 @@ float LinuxParser::CpuUtilization(int pid) {
     float seconds = uptime - (starttime / Hertz);
 
     // Calculate CPU utilization
-    float cpu_utilization = 100 * (total_time / Hertz) / seconds;
+    float cpu_utilization = (total_time / Hertz) / seconds;
 
     return cpu_utilization;
   }
