@@ -81,14 +81,19 @@ float LinuxParser::MemoryUtilization() {
       linestream >> keyword >> value >> kb;
       assert(kb == "kB");
       meminfo.push_back(std::stoi(value));
-      if (meminfo.size() == 4) break;
+      if (meminfo.size() == 5) break;
     }
   }
-  if (meminfo.size() == 4) {
-    // (MemTotal - MemFree) / MemTotal
-    return static_cast<float>(meminfo[0] - meminfo[1]) /
-           static_cast<float>(meminfo[0]);
+  if (meminfo.size() == 5) {
+    auto totalMemory = static_cast<float>(meminfo[0]);
+    auto freeMemory = static_cast<float>(meminfo[1]);
+    auto bufferMemory = static_cast<float>(meminfo[3]);
+    auto cacheMemory = static_cast<float>(meminfo[4]);
+
+    auto usedMemory = totalMemory - freeMemory - bufferMemory - cacheMemory;
+    return usedMemory / totalMemory;
   }
+
   return 0.0;
 }
 
