@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include <cassert>
-#include <filesystem>
+#include <experimental/filesystem>
 #include <string>
 #include <vector>
 
@@ -12,7 +12,7 @@ using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
-namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 
 // An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -55,7 +55,7 @@ vector<int> LinuxParser::Pids() {
   vector<int> pids;
   if (fs::exists(kProcDirectory)) {
     for (const auto& entry : fs::directory_iterator(kProcDirectory)) {
-      if (entry.is_directory()) {
+      if (entry.status().type() == fs::file_type::directory) {
         string filename = entry.path().filename().string();
         if (std::all_of(filename.begin(), filename.end(), isdigit)) {
           int pid = stoi(filename);
