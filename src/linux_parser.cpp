@@ -252,7 +252,7 @@ long LinuxParser::UpTime(int pid) {
       linestream >> value;
     }
     // clock ticks to seconds
-    return std::stol(value) / sysconf(_SC_CLK_TCK);
+    return UpTime() - std::stol(value) / sysconf(_SC_CLK_TCK);
   }
   return 0;
 }
