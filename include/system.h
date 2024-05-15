@@ -18,12 +18,12 @@ class System {
 
   Processor& Cpu();
   std::vector<Process>& Processes();
-  [[nodiscard]] static float MemoryUtilization();
-  [[nodiscard]] static long UpTime();
-  [[nodiscard]] static int TotalProcesses();
-  [[nodiscard]] static int RunningProcesses();
-  [[nodiscard]] std::string Kernel() const;
-  [[nodiscard]] std::string OperatingSystem() const;
+  static float MemoryUtilization();
+  static long UpTime();
+  static int TotalProcesses();
+  static int RunningProcesses();
+  std::string Kernel() const;
+  std::string OperatingSystem() const;
 
  private:
   std::mutex dataMutex_;
