@@ -44,7 +44,7 @@ float Processor::Utilization() {
 
   // Calculate CPU percentage
   auto diff = static_cast<float>(total_diff) - static_cast<float>(idle_diff);
-  float cpu_utilization = diff / static_cast<float>(total_diff);
+  float cpu_utilization = std::min(100.0f, diff / static_cast<float>(total_diff));
 
   prev_user = curr_user;
   prev_nice = curr_nice;

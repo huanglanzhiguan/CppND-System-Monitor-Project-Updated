@@ -85,8 +85,8 @@ float LinuxParser::MemoryUtilization() {
     }
   }
   if (meminfo.size() == 4) {
-    // (MemTotal - MemFree - Buffers) / MemTotal
-    return static_cast<float>(meminfo[0] - meminfo[1] - meminfo[3]) /
+    // (MemTotal - MemFree) / MemTotal
+    return static_cast<float>(meminfo[0] - meminfo[1]) /
            static_cast<float>(meminfo[0]);
   }
   return 0.0;
