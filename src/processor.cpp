@@ -43,7 +43,8 @@ float Processor::Utilization() {
   uint64_t idle_diff = curr_total_idle - prev_total_idle;
 
   // Calculate CPU percentage
-  float cpu_utilization = (total_diff - idle_diff) * 100.0 / total_diff;
+  auto diff = static_cast<float>(total_diff) - static_cast<float>(idle_diff);
+  float cpu_utilization = diff / static_cast<float>(total_diff);
 
   prev_user = curr_user;
   prev_nice = curr_nice;
